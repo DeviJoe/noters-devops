@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+backend/bin/
+backend/noters
+backend/coverage*
+backup*.sql
+cookies.txt
+.cookies*
+*.log
+.DS_Store
+__pycache__/
+.playwright-cli/
+output/

@@ -1,0 +1,70 @@
+name: noters
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-noters}
+      POSTGRES_USER: ${POSTGRES_USER:-noters}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      HTTP_ADDR: ":8080"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PGHOST: db
+      PGPORT: "5432"
+      PGDATABASE: ${POSTGRES_DB:-noters}
+      PGUSER: ${POSTGRES_USER:-noters}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PGSSLMODE: disable
+      DB_MAX_CONNS: ${DB_MAX_CONNS:-10}
+      AUTH_SESSION_TTL: ${AUTH_SESSION_TTL:-24h}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      AUTH_ALLOW_REGISTRATION: ${AUTH_ALLOW_REGISTRATION:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${APP_BIND_IP:-127.0.0.1}:${APP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202a25">
+  <meta name="description" content="Noters — личный блокнот для идей, планов и повседневных заметок.">
+  <title>Noters — личные заметки</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-heading">
+    <a class="brand auth-brand" href="/" aria-label="Noters — главная"><span class="brand-mark">n.</span>Noters</a>
+    <div class="auth-panel">
+      <p class="eyebrow">ВАШ ЛИЧНЫЙ БЛОКНОТ</p>
+      <h1 id="auth-heading">С возвращением.</h1>
+      <p class="subtitle" id="auth-description">Войдите, чтобы открыть свои заметки.</p>
+      <div class="auth-tabs"><button type="button" id="login-tab" aria-pressed="true">Вход</button><button type="button" id="register-tab" aria-pressed="false">Регистрация</button></div>
+      <form id="auth-form">
+        <label class="field-label" for="auth-username">Логин</label>
+        <input class="title-input" id="auth-username" autocomplete="username" placeholder="your.name" minlength="3" maxlength="32" pattern="[a-zA-Z0-9._\-]{3,32}" required>
+        <label class="field-label" for="auth-password">Пароль</label>
+        <input class="title-input" id="auth-password" type="password" autocomplete="current-password" maxlength="128" required>
+        <div id="password-confirmation" hidden><label class="field-label" for="auth-confirm">Повторите пароль</label><input class="title-input" id="auth-confirm" type="password" autocomplete="new-password" maxlength="128"></div>
+        <p class="auth-hint" id="register-hint" hidden>Логин: 3–32 символа, латинские буквы, цифры, точка, дефис или подчёркивание. Пароль: 12–128 символов.</p>
+        <p class="form-error" id="auth-error" role="alert" hidden></p>
+        <button class="button primary auth-submit" id="auth-submit" type="submit" disabled>Подключение…</button>
+      </form>
+      <button class="auth-retry" id="auth-retry" type="button" hidden>Повторить подключение</button>
+    </div>
+    <p class="auth-footer">Идеи, которые принадлежат вам.</p>
+  </section>
+  <div id="app-shell" hidden>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Noters — главная"><span class="brand-mark">n.</span>Noters</a>
+    <div class="workspace-label">ВАШЕ ПРОСТРАНСТВО</div>
+    <div class="nav-item"><span aria-hidden="true">▤</span> Все заметки</div>
+    <div class="sidebar-tip"><span class="tip-icon" aria-hidden="true">✳</span><p>Хорошие идеи<br>начинаются с заметки.</p><small>Планы, мысли и всё, что хочется сохранить.</small></div>
+    <footer class="sidebar-footer"><span class="status-dot"></span> Личный блокнот <span class="version">v1.0</span></footer>
+  </aside>
+  <main>
+    <header class="topbar"><span>Личный блокнот <span class="crumb">/</span> <strong>Все заметки</strong></span><div class="account"><span class="user-name" id="user-name"></span><button class="logout-button" id="logout" type="button">Выйти</button></div></header>
+    <section class="workspace" aria-labelledby="page-title">
+      <div class="intro"><div><p class="eyebrow">СОХРАНИТЕ ВАЖНОЕ</p><h1 id="page-title">Место для ваших мыслей.</h1><p class="subtitle">Идеи, списки и планы — всё под рукой.</p></div><button class="button primary" id="new-note" type="button"><span aria-hidden="true">＋</span> Новая заметка</button></div>
+      <div class="toolbar"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Найти в заметках…" maxlength="200" aria-label="Поиск по заголовку и тексту"></label><span class="note-count" id="note-count" aria-live="polite">Загрузка…</span></div>
+      <div class="error-banner" id="error-banner" role="alert" hidden><span id="error-text"></span><button id="retry" type="button">Повторить</button></div>
+      <div class="notes-grid" id="notes" aria-label="Заметки" aria-busy="true"></div>
+      <div class="empty-state" id="empty-state" hidden><div class="paper-icon" aria-hidden="true"><span></span><span></span><span></span></div><h2 id="empty-title">Всё начинается с первой заметки</h2><p id="empty-text">Запишите идею, составьте план или сохраните то, что важно.</p><button class="button primary" id="empty-create" type="button">Создать заметку</button></div>
+      <div class="load-more"><button class="button secondary" id="load-more" type="button" hidden>Показать ещё</button></div>
+      <p class="workspace-footer">Ваши мысли заслуживают своего места.</p>
+    </section>
+  </main>
+  </div>
+  <dialog id="editor" aria-labelledby="editor-heading">
+    <form id="note-form">
+      <div class="dialog-header"><div><p class="eyebrow">ЛИЧНЫЙ БЛОКНОТ</p><h2 id="editor-heading">Новая заметка</h2></div><button class="icon-button" id="close-editor" type="button" aria-label="Закрыть редактор">×</button></div>
+      <label class="field-label" for="note-title">Заголовок</label><input class="title-input" id="note-title" name="title" placeholder="О чём эта заметка?" maxlength="200" required>
+      <label class="field-label" for="note-content">Текст</label><textarea id="note-content" name="content" placeholder="Дайте мыслям немного пространства…" rows="12"></textarea>
+      <div class="editor-meta"><label class="pin-option"><input id="note-pinned" type="checkbox"> Закрепить наверху</label><span id="char-count">0 / 100 000</span></div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button class="button danger" id="delete-note" type="button" hidden>Удалить</button><div class="right-actions"><button class="button secondary" id="cancel-editor" type="button">Отмена</button><button class="button primary" id="save-note" type="submit">Сохранить</button></div></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <noscript><p class="noscript">Для работы Noters включите JavaScript в браузере.</p></noscript>
+</body>
+</html>
